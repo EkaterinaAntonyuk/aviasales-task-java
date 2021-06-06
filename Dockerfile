@@ -1,6 +1,7 @@
 FROM openjdk:11.0.11-jdk as build
 COPY . /build
 WORKDIR /build
+RUN ["chmod", "+x", "./mvnw"]
 RUN ["./mvnw","install"]
 
 FROM openjdk:11.0.11-jre
