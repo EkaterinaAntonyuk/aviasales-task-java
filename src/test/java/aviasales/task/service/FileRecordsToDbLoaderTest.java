@@ -5,11 +5,18 @@ import aviasales.task.repository.FlightsRepository;
 import org.apache.commons.csv.CSVRecord;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.*;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.TimeZone;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.eq;
@@ -17,6 +24,8 @@ import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class FileRecordsToDbLoaderTest {
+
+    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyyMMddHHmm");
 
     @InjectMocks
     FileRecordsToDbLoader fileRecordsToDbLoader;
@@ -28,7 +37,8 @@ public class FileRecordsToDbLoaderTest {
     ArgumentCaptor<Flight> flightCaptor;
 
     @Test
-    public void testLoadDataToDB() {
+    public void testLoadDataToDB() throws ParseException {
+        DATE_FORMAT.setTimeZone(TimeZone.getTimeZone(ZoneId.of("UTC")));
         ArrayList<CSVRecord> records = new ArrayList<>();
         records.add(createCSVRecord("1",
                 "SVO",
@@ -56,20 +66,17 @@ public class FileRecordsToDbLoaderTest {
         assertEquals(firstFlight.getId(), "1");
         assertEquals(firstFlight.getOrigin(), "SVO");
         assertEquals(firstFlight.getDestination(), "BKK");
-        assertEquals(firstFlight.getDepartureDate(), "20210701");
-        assertEquals(firstFlight.getDepartureTime(), "2010");
-        assertEquals(firstFlight.getArrivalDate(), "20210702");
-        assertEquals(firstFlight.getArrivalTime(), "1115");
+        assertEquals(firstFlight.getDepartureTime(), DATE_FORMAT.parse("202107012010"));
+        assertEquals(firstFlight.getArrivalTime(), DATE_FORMAT.parse("202107021115"));
         assertEquals(firstFlight.getNumber(), "SU-275");
 
         Flight secondFlight = flights.get(1);
         assertEquals(secondFlight.getId(), "2");
         assertEquals(secondFlight.getOrigin(), "SVO");
         assertEquals(secondFlight.getDestination(), "BKK");
-        assertEquals(secondFlight.getDepartureDate(), "20210702");
-        assertEquals(secondFlight.getDepartureTime(), "2010");
-        assertEquals(secondFlight.getArrivalDate(), "20210703");
-        assertEquals(secondFlight.getArrivalTime(), "1115");
+        assertEquals(firstFlight.getDestination(), "BKK");
+        assertEquals(secondFlight.getDepartureTime(), DATE_FORMAT.parse("202107022010"));
+        assertEquals(secondFlight.getArrivalTime(), DATE_FORMAT.parse("202107031115"));
         assertEquals(secondFlight.getNumber(), "SU-275");
     }
 

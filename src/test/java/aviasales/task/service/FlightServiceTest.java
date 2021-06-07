@@ -10,6 +10,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -19,6 +21,8 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class FlightServiceTest {
 
+    public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyyMMddHHmm");
+
     @InjectMocks
     FlightsService flightsService;
 
@@ -26,21 +30,19 @@ public class FlightServiceTest {
     FlightsRepository flightsRepository;
 
     @Test
-    public void testGetFlightById() {
+    public void testGetFlightById() throws ParseException {
         Flight flight = new Flight(
                 "10",
                 "SVO",
                 "BKK",
-                "20210708",
-                "2010",
-                "20210709",
-                "1115",
+                DATE_FORMAT.parse("202107082010"),
+                DATE_FORMAT.parse("202107091115"),
                 "SU-275"
         );
         when(flightsRepository.findById("10")).thenReturn(Optional.of(flight));
 
-        FlightDto expected = new FlightDto("2010",
-                "1115",
+        FlightDto expected = new FlightDto(DATE_FORMAT.parse("202107082010"),
+                DATE_FORMAT.parse("202107091115"),
                 "SU-275");
 
         FlightDto actual = flightsService.getFlightById("10");
